@@ -11,26 +11,45 @@ namespace Snake
     {
         static void Main(string[] args)
         {
-            VerticalLine vl = new VerticalLine(0, 10, 5, '%');
-            Draw(vl);
+            //Console.SetBufferSize(80, 25);
+            Walls walls = new Walls(80, 25);
+            walls.Draw();
 
             Point p = new Point(4, 5, '*');
-            Figure fSnake = new Snake(p, 4, Direction.RIGHT);
-            Draw(fSnake);
-            Snake snake = (Snake)fSnake;
+            Snake snake = new Snake(p, 4, Direction.RIGHT);
+            snake.Draw();
 
-            HorizontalLine hl = new HorizontalLine(0, 5, 6, '&');
+            FoodCreator foodCreator = new FoodCreator(80, 25, '$');
+            Point food = foodCreator.CreateFood();
+            Console.ForegroundColor = ConsoleColor.Red;
+            food.Draw();
+            Console.ForegroundColor = ConsoleColor.Magenta;
 
-            List<Figure> figures = new List<Figure>();
-            figures.Add(fSnake);
-            figures.Add(vl);
-            figures.Add(hl);
-
-            foreach (var f in figures)
+            while (true)
             {
-                f.Draw();
-            }
+                if (walls.IsHit(snake) || snake.IsHitTail())
+                {
+                    break;
+                }
+                if (snake.Eat(food))
+                {
+                    food = foodCreator.CreateFood();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    food.Draw();
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                }
+                else
+                {
+                    snake.Move();
+                }
+                Thread.Sleep(100);
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo key = Console.ReadKey();
+                    snake.HandleKey(key.Key);
 
+                }
+            }
             Console.ReadLine();
         }
 
